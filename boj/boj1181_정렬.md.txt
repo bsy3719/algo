@@ -1,0 +1,124 @@
+### [boj1181_단어정렬](https://www.acmicpc.net/problem/1181)
+
+#### 조건
+1. 길이가 짧은 단어부터 정렬
+2. 단어의 길이가 같다면 사전순으로 정렬
+3. 같은 단어 중복 출력 X 
+
+#### 느낀점 
+문제를 잘읽자 ^_^ 
+```cpp
+#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
+using namespace std;
+
+bool comp(string & s1, string & s2)
+{
+	// 길이가 짧은 순
+	if (s1.length() < s2.length())
+		return true;
+	else if (s1.length() > s2.length())
+		return false;
+	// 길이가 같으면 사전순
+	else
+		return s1 < s2;
+}
+
+int main()
+{
+	int N;
+	cin >> N;
+	vector <string> word_dict(N, "");
+	
+	for (int idx = 0; idx < N; idx++)
+	{
+		cin >> word_dict[idx];
+	}
+
+	sort(word_dict.begin(), word_dict.end(), comp);
+	
+	for (int idx = 0; idx < N; idx++)
+	{
+		if ((idx != N-1) && (word_dict[idx] == word_dict[idx + 1]))
+			continue;
+		cout << word_dict[idx]<<endl;
+	}
+
+	return 0;
+}
+```
+
+라이브러리 사용하지 않고 푼 사람거  
+코드가 직관적이라 따로 분석 X  
+코드분석[[4rchive_7]](https://www.acmicpc.net/source/11315336)
+```c
+#include <stdio.h>
+#include <stdlib.h>
+
+#define _WORD_SZ 51
+#define _MAX_SZ 20001
+
+typedef struct node{
+	char word[_WORD_SZ];
+	int dup;
+	int length;
+}NODE;
+
+#define SWAP(A, B) {NODE T = A; A = B; B = T;}
+
+NODE dic[_MAX_SZ];
+int dic_sz = 0;
+
+int cmp(NODE *a, NODE *b){
+	int l,w;
+	if ((l = a->length - b->length) < 0){
+		return 1;
+	}
+	else if (l > 0){
+		return 0;
+	}
+	else {
+		w = strcmp(a->word, b->word);
+		if (w < 0) return 1;
+		else
+			return 0;		
+	}
+}
+
+void myQsort(int l, int r){
+	int i = l, j = r, p = (i + j) / 2;
+	NODE pivot = dic[p];
+	do{
+		while (cmp(&dic[i], &pivot)) i++;
+		while (cmp(&pivot, &dic[j])) j--;
+		if (i <= j){
+			SWAP(dic[i], dic[j]);
+			i++; j--;
+		}
+	} while (i <= j);
+
+	if (i < r) myQsort(i, r);
+	if (l < j) myQsort(l, j);
+}
+
+int main(){
+	int N;
+	NODE *newNode;
+	scanf("%d", &N);
+	char temp[_WORD_SZ];
+	while (N--){
+		newNode = &dic[dic_sz++];
+		scanf(" %s", newNode->word);
+		newNode->length = strlen(newNode->word);
+		newNode->dup = 0;
+	}
+	myQsort(0, dic_sz - 1);
+	for (int i = 0; i < dic_sz; i++){
+		if (i == 0) printf("%s\n", dic[i].word);
+		if (i>0 && strcmp(dic[i].word, dic[i-1].word) != 0) printf("%s\n", dic[i].word);
+	}
+	return 0;
+}
+```
